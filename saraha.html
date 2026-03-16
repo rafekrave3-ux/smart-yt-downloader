@@ -1,145 +1,42 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محول يوتيوب الذكي | حمل أغانيك المفضلة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        body { font-family: 'Cairo', sans-serif; }
-        .gradient-text {
-            background: linear-gradient(to left, #ec4899, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
-</head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+<script>
+    const form = document.getElementById('downloadForm');
+    const urlInput = document.getElementById('youtubeUrl');
+    const resultSection = document.getElementById('resultSection');
+    const downloadLink = document.getElementById('downloadLink');
 
-    <div class="w-full max-w-2xl bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-700 relative overflow-hidden">
-        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-purple-600 opacity-20 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-pink-600 opacity-20 blur-3xl"></div>
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const videoUrl = urlInput.value.trim();
 
-        <div class="text-center relative z-10 mb-10">
-            <i class="fab fa-youtube text-5xl text-red-500 mb-4 animate-bounce"></i>
-            <h1 class="text-4xl font-bold mb-2">محول <span class="gradient-text">يوتيوب</span> الذكي</h1>
-            <p class="text-gray-400">قم بتحويل أي فيديو إلى ملف صوتي MP3 بجودة عالية وبضغطة زر</p>
-        </div>
+        // تفعيل حالة التحميل
+        document.getElementById('btnText').classList.add('hidden');
+        document.getElementById('btnSpinner').classList.remove('hidden');
 
-        <form id="downloadForm" class="relative z-10">
-            <div class="relative mb-4">
-                <input type="text" id="youtubeUrl" 
-                    class="w-full bg-gray-900 border border-gray-600 rounded-xl py-4 px-6 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all text-left" 
-                    placeholder="https://www.youtube.com/watch?v=..." dir="ltr" required>
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
-                    <i class="fas fa-link"></i>
-                </div>
-            </div>
-
-            <div id="errorMessage" class="hidden text-red-400 text-sm mb-4 font-semibold">
-                <i class="fas fa-exclamation-circle mr-1"></i> يرجى إدخال رابط يوتيوب صحيح.
-            </div>
-
-            <button type="submit" id="submitBtn" 
-                class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex justify-center items-center">
-                <span id="btnText">تحويل الآن <i class="fas fa-magic ml-2"></i></span>
-                <i id="btnSpinner" class="fas fa-circle-notch fa-spin hidden text-xl"></i>
-            </button>
-        </form>
-
-        <div id="resultSection" class="hidden mt-8 p-6 bg-gray-900 rounded-2xl border border-gray-700 relative z-10 transition-all duration-500 ease-in-out opacity-0 translate-y-4">
-            <div class="flex flex-col md:flex-row items-center gap-6">
-                <img id="videoThumb" src="" alt="Thumbnail" class="w-full md:w-48 rounded-xl shadow-md object-cover">
-                <div class="flex-1 text-center md:text-right">
-                    <h3 id="videoTitle" class="text-lg font-bold mb-2 line-clamp-2">عنوان الفيديو سيظهر هنا</h3>
-                    <div class="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
-                        <span class="bg-gray-800 text-xs py-1 px-3 rounded-full border border-gray-600"><i class="fas fa-music mr-1"></i> MP3</span>
-                        <span class="bg-gray-800 text-xs py-1 px-3 rounded-full border border-gray-600"><i class="fas fa-headphones mr-1"></i> جودة عالية</span>
-                    </div>
-                    <a href="#" id="downloadLink" 
-                        class="inline-block bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg">
-                        <i class="fas fa-download mr-1"></i> تحميل الملف
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const form = document.getElementById('downloadForm');
-        const urlInput = document.getElementById('youtubeUrl');
-        const errorMessage = document.getElementById('errorMessage');
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
-        const submitBtn = document.getElementById('submitBtn');
-        const resultSection = document.getElementById('resultSection');
-        
-        // دالة للتحقق من أن الرابط يتبع ليوتيوب
-        function isValidYoutubeUrl(url) {
-            const regex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
-            return regex.test(url);
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const url = urlInput.value.trim();
-
-            // التحقق من صحة الرابط
-            if (!isValidYoutubeUrl(url)) {
-                errorMessage.classList.remove('hidden');
-                urlInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                return;
-            }
-
-            // إخفاء الخطأ إن وجد
-            errorMessage.classList.add('hidden');
-            urlInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-
-            // تفعيل حالة التحميل (Loading)
-            btnText.classList.add('hidden');
-            btnSpinner.classList.remove('hidden');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-            resultSection.classList.add('hidden', 'opacity-0', 'translate-y-4');
-
-            try {
-                // ملاحظة: هنا يجب أن تضع رابط الـ API الخاص بخادمك
-                // هذا الكود هو محاكاة (Mock) لشكل الاستجابة من الخادم
-                
-                await new Promise(resolve => setTimeout(resolve, 2000)); // محاكاة وقت التحويل
-
-                // استخراج ID الفيديو لجلب الصورة المصغرة (مثال مبسط)
-                const videoId = url.split('v=')[1]?.substring(0, 11) || url.split('/').pop().substring(0, 11);
-                
-                // تحديث واجهة النتيجة
+        try {
+            // استخدام خدمة API مجانية (مثل yt-download.org كمثال)
+            // ملاحظة: الخدمات المجانية قد تتغير، لكن هذا سيعطيك الوظيفة الأساسية
+            const videoId = videoUrl.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/)?.[1] || videoUrl.split('/').pop();
+            
+            if (videoId) {
+                // إعداد واجهة النتيجة
                 document.getElementById('videoThumb').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                document.getElementById('videoTitle').textContent = "تم تجهيز المقطع بنجاح! (مثال تجريبي)";
-                document.getElementById('downloadLink').href = "#"; // سيتم وضع رابط التحميل الحقيقي هنا
+                document.getElementById('videoTitle').textContent = "جارِ تجهيز ملف MP3 الخاص بك...";
+                
+                // رابط التحميل (نستخدم هنا خدمة تحويل وسيطة شهيرة)
+                const downloadApiUrl = `https://api.vevioz.com/api/button/mp3/${videoId}`;
+                
+                downloadLink.href = downloadApiUrl;
+                downloadLink.target = "_blank"; // يفتح التحميل في صفحة جديدة
 
-                // إظهار النتيجة بتأثير حركي
+                // إظهار النتيجة
                 resultSection.classList.remove('hidden');
-                setTimeout(() => {
-                    resultSection.classList.remove('opacity-0', 'translate-y-4');
-                }, 50);
-
-            } catch (error) {
-                alert("حدث خطأ أثناء الاتصال بالخادم.");
-            } finally {
-                // إعادة الزر لحالته الطبيعية
-                btnText.classList.remove('hidden');
-                btnSpinner.classList.add('hidden');
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                setTimeout(() => resultSection.classList.remove('opacity-0', 'translate-y-4'), 100);
             }
-        });
-
-        // إخفاء الخطأ عند بدء الكتابة
-        urlInput.addEventListener('input', () => {
-            errorMessage.classList.add('hidden');
-            urlInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-        });
-    </script>
-</body>
-</html>
+        } catch (error) {
+            alert("عذراً، حدث خطأ أثناء التحويل.");
+        } finally {
+            document.getElementById('btnText').classList.remove('hidden');
+            document.getElementById('btnSpinner').classList.add('hidden');
+        }
+    });
+</script>
