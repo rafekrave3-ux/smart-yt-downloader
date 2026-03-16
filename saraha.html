@@ -1,42 +1,81 @@
-<script>
-    const form = document.getElementById('downloadForm');
-    const urlInput = document.getElementById('youtubeUrl');
-    const resultSection = document.getElementById('resultSection');
-    const downloadLink = document.getElementById('downloadLink');
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محول يوتيوب الذكي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen flex items-center justify-center p-6">
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const videoUrl = urlInput.value.trim();
+    <div class="w-full max-w-xl bg-gray-900/50 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="bg-red-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
+                <i class="fab fa-youtube text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">تحميل موسيقى يوتيوب</h1>
+            <p class="text-gray-400 mt-2">أدخل الرابط وابدأ التحميل بذكاء</p>
+        </div>
 
-        // تفعيل حالة التحميل
-        document.getElementById('btnText').classList.add('hidden');
-        document.getElementById('btnSpinner').classList.remove('hidden');
-
-        try {
-            // استخدام خدمة API مجانية (مثل yt-download.org كمثال)
-            // ملاحظة: الخدمات المجانية قد تتغير، لكن هذا سيعطيك الوظيفة الأساسية
-            const videoId = videoUrl.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/)?.[1] || videoUrl.split('/').pop();
+        <form id="downloadForm" class="space-y-4">
+            <input type="text" id="youtubeUrl" placeholder="ضع رابط الفيديو هنا..." 
+                class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-center" dir="ltr">
             
-            if (videoId) {
-                // إعداد واجهة النتيجة
-                document.getElementById('videoThumb').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                document.getElementById('videoTitle').textContent = "جارِ تجهيز ملف MP3 الخاص بك...";
-                
-                // رابط التحميل (نستخدم هنا خدمة تحويل وسيطة شهيرة)
-                const downloadApiUrl = `https://api.vevioz.com/api/button/mp3/${videoId}`;
-                
-                downloadLink.href = downloadApiUrl;
-                downloadLink.target = "_blank"; // يفتح التحميل في صفحة جديدة
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-4 rounded-2xl transition-all flex justify-center items-center gap-2">
+                <span id="btnText">تحويل إلى MP3</span>
+                <i id="btnSpinner" class="fas fa-spinner fa-spin hidden"></i>
+            </button>
+        </form>
 
-                // إظهار النتيجة
-                resultSection.classList.remove('hidden');
-                setTimeout(() => resultSection.classList.remove('opacity-0', 'translate-y-4'), 100);
+        <div id="resultSection" class="hidden mt-8 pt-8 border-t border-white/10 text-center animate-fade-in">
+            <img id="videoThumb" class="w-full rounded-2xl mb-4 shadow-lg border border-white/10">
+            <h3 id="videoTitle" class="font-bold mb-4 px-2"></h3>
+            <a id="downloadLink" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-black font-bold py-3 px-8 rounded-xl transition-all">
+                <i class="fas fa-download"></i> تحميل الآن
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const urlInput = document.getElementById('youtubeUrl');
+        const resultSection = document.getElementById('resultSection');
+        const downloadLink = document.getElementById('downloadLink');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const videoUrl = urlInput.value.trim();
+            if(!videoUrl) return;
+
+            document.getElementById('btnText').classList.add('hidden');
+            document.getElementById('btnSpinner').classList.remove('hidden');
+
+            try {
+                const videoId = videoUrl.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/)?.[1] || videoUrl.split('/').pop();
+                
+                if (videoId) {
+                    document.getElementById('videoThumb').src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                    document.getElementById('videoTitle').textContent = "تم استخراج ملف الصوت بنجاح";
+                    
+                    // رابط التحميل باستخدام خدمة API وسيطة
+                    downloadLink.href = `https://api.vevioz.com/api/button/mp3/${videoId}`;
+                    downloadLink.target = "_blank";
+
+                    resultSection.classList.remove('hidden');
+                }
+            } catch (error) {
+                alert("حدث خطأ، تأكد من الرابط");
+            } finally {
+                document.getElementById('btnText').classList.remove('hidden');
+                document.getElementById('btnSpinner').classList.add('hidden');
             }
-        } catch (error) {
-            alert("عذراً، حدث خطأ أثناء التحويل.");
-        } finally {
-            document.getElementById('btnText').classList.remove('hidden');
-            document.getElementById('btnSpinner').classList.add('hidden');
-        }
-    });
-</script>
+        });
+    </script>
+</body>
+</html>
